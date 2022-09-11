@@ -8,6 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllers();
+builder.Services.AddControllers(options => options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -27,12 +28,12 @@ builder.Services.AddAuthentication( x=>
     b.SaveToken = true;
     b.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
     {
-        ValidateIssuer = true,
+        ValidateIssuer = false,
         ValidateAudience = false,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = builder.Configuration["AppSettings:JWT:Issues"],
-        ValidAudience = builder.Configuration["AppSettings:JWT:Audience"],
+        //ValidIssuer = builder.Configuration["AppSettings:JWT:Issues"],
+        //ValidAudience = builder.Configuration["AppSettings:JWT:Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(key)
     };
 });

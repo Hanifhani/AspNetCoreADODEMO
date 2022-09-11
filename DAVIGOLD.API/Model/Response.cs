@@ -12,6 +12,8 @@ namespace DAVIGOLD.API.Model
 
         [DataMember(Name = "Data")]
         public T Data { get; set; }
+
+        
     }
 
 

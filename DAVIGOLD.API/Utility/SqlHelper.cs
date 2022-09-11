@@ -36,6 +36,32 @@ namespace DAVIGOLD.API.Utility
                 
         }
 
+
+
+        public static int ExecuteCommandReturnInt(string connectionString, string commandText, params SqlParameter[] parameters)
+        {
+            int result = 0;
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            using (SqlCommand cmd = new SqlCommand(commandText, conn))
+            {
+                cmd.CommandType = System.Data.CommandType.Text;
+                cmd.CommandText = commandText;
+                if (parameters != null)
+                {
+                    cmd.Parameters.AddRange(parameters);
+                }
+                conn.Open();
+                var response = cmd.ExecuteScalar();
+                if (response != null)
+                    result = Convert.ToInt32(response);
+            }
+
+
+            return result;
+
+
+
+        }
         /// <summary>
         /// Execute procedure and Return string 
         /// </summary>
@@ -126,6 +152,11 @@ namespace DAVIGOLD.API.Utility
         public static bool GetBoolean(SqlDataReader reader, string colName)
         {
             return reader.IsDBNull(reader.GetOrdinal(colName)) ? default(bool) : Convert.ToBoolean(reader[colName]);
+        }
+
+        public static DateTime? GetNullableDateTime(SqlDataReader reader, string colName)
+        {
+            return reader.IsDBNull(reader.GetOrdinal(colName)) ? null : Convert.ToDateTime(reader[colName]);
         }
 
         //this method is to check wheater column exists or not in data reader

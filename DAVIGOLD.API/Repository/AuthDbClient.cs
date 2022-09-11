@@ -26,17 +26,18 @@ namespace DAVIGOLD.API.Repository
             var response = new Response<TokenModel>();
 
             SqlParameter[] param = {
-                new SqlParameter("@Email",auth.Email),
+                new SqlParameter("@Login",auth.Login),
                 new SqlParameter("@Password",auth.Password)
             };
 
-            string query = "Declare @userID INT;   SET @userID=(SELECT UserID FROM [dbo].[User] WHERE Email=@Email AND PasswordHash=HASHBYTES('SHA2_512', @Password)) SELECT @userID as UserID;";
+            string query = "Declare @userID INT;   SET @userID=(SELECT UserID FROM [dbo].[User] WHERE Email=@Login AND PasswordHash=HASHBYTES('SHA2_512', @Password+CAST(Salt AS NVARCHAR(36)))) SELECT @userID as UserID;";
 
 
            var result = SqlHelper.ExecuteCommandReturnBool(appSettings.Value.ConnectionString, query, param);
             if (result)
             {
                 response.ReturnMessage = "User logged In Successfull";
+                response.IsSuccess = result;
                 response.Data = GenerateToken(auth, appSettings);
                 return response;
             }
@@ -55,13 +56,13 @@ namespace DAVIGOLD.API.Repository
             {
                 Subject = new ClaimsIdentity(new Claim[]
               {
-             new Claim(ClaimTypes.Email, Auth?.Email)
+             new Claim(ClaimTypes.UserData, Auth?.Login)
               }),
                 Expires = DateTime.UtcNow.AddMinutes(60),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(tokenKey), SecurityAlgorithms.HmacSha256Signature)
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);
-            return new TokenModel { Token = tokenHandler.WriteToken(token) };
+            return new TokenModel { Token = tokenHandler.WriteToken(token), Expires = token.ValidTo };
         }
         #endregion
     }
